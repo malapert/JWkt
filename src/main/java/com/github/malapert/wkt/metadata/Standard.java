@@ -16,45 +16,14 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA 02110-1301  USA 
 */
-package com.github.malapert.wkt.utils;
+package com.github.malapert.wkt.metadata;
 
 /**
- * Singleton
+ *
  * @author malapert
  */
-public class Singleton {
-    
-    private WktEltCollection collection;
-
-    /**
-     * Returns the instance.
-     * @return the instance
-     */
-    public static Singleton getInstance() {
-        if (null == instance) { // Premier appel
-            instance = new Singleton();
-        }
-        return instance;
-    }
-
-    private Singleton() {
-    }
-    
-        private static Singleton instance;
-
-    /**
-     * Returns the WKT elements.
-     * @return the collection
-     */
-    public WktEltCollection getCollection() {
-        return collection;
-    }
-
-    /**
-     * Sets the WKT elements.
-     * @param collection the collection to set
-     */
-    public void setCollection(final WktEltCollection collection) {
-        this.collection = collection;
-    }
+public interface Standard {
+    public static final String VERSION = "2.0.6";
+    public static final String NAME = "Well-known text representation of coordinate reference systems";
+    public static final String INTERNAL_NUMBER = "18-010r7";
 }

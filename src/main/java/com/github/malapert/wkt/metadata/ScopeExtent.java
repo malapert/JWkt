@@ -1,19 +1,21 @@
 /* 
- * Copyright (C) 2016 Jean-Christophe Malapert
+ * Copyright (C) 2016-2019 Jean-Christophe Malapert
  *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * JWkt is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3.0 of the License, or (at your option) any later version.
  *
- * This program is distributed in the hope that it will be useful,
+ * JWkt is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
+ * MA 02110-1301  USA 
+*/
 package com.github.malapert.wkt.metadata;
 
 import com.github.malapert.wkt.utils.Singleton;
@@ -25,9 +27,9 @@ import java.util.Iterator;
 import java.util.List;
 
 /**
- * The BNF element "scope extent identifier remark" is a collection of four
- * optional attributes which may be applied to a coordinate reference system, a
- * coordinate operation or a boundCRS.
+ * The BNF (Backus-Naur form) element "scope extent identifier remark" is a 
+ * collection of four optional attributes which may be applied to a coordinate
+ * reference system, a coordinate operation or a boundCRS.
  *
  * The "scope extent identifier remark" collection is to simplify the BNF
  * through grouping.
@@ -41,12 +43,18 @@ import java.util.List;
  *
  * @author Jean-Christophe Malapert
  */
-public final class ScopeExtent implements Metadata, WktDescription {
-
+public final class ScopeExtent implements WktDescription {
+    /**
+     * List of {@link com.github.malapert.wkt.metadata.Usage}.
+     * 
+     * Usage is an optional attribute which if included in a WKT string shall 
+     * include both "scope" and "extent".
+     */
     private List<Usage> usageList = new ArrayList<>();
     private List<Identifier> identifierList = new ArrayList<>();
     private Remark remark;
     protected WktEltCollection wktEltCollection = Singleton.getInstance().getCollection();
+    
     
     public ScopeExtent() {
         
@@ -76,7 +84,6 @@ public final class ScopeExtent implements Metadata, WktDescription {
         this.usageList = usageList;
     }
     
-    @Override
     public List<Usage> getUsageList() {
         return this.usageList;
     }
@@ -86,7 +93,6 @@ public final class ScopeExtent implements Metadata, WktDescription {
      *
      * @return the identifierList
      */
-    @Override
     public List<Identifier> getIdentifierList() {
         return identifierList;
     }
@@ -106,7 +112,6 @@ public final class ScopeExtent implements Metadata, WktDescription {
      *
      * @return the remark
      */
-    @Override
     public Remark getRemark() {
         return remark;
     }
@@ -130,22 +135,26 @@ public final class ScopeExtent implements Metadata, WktDescription {
     }
 
     @Override
-    public StringBuffer toWkt(int deepLevel) {
+    public StringBuffer toWkt(final String endLine, final String tab, int deepLevel) {
         StringBuffer wkt = new StringBuffer();
         for (final Usage usage : this.getUsageList()) {
-            wkt = wkt.append(WKT_SEPARATOR).append("\n").append(Utils.makeSpaces(deepLevel)).append(usage.toWkt(deepLevel));
+            wkt = wkt.append(WKT_SEPARATOR).append(endLine).append(Utils.makeSpaces(tab, deepLevel)).append(usage.toWkt(endLine, tab, deepLevel));
         }
 
         for (final Identifier identifier : this.getIdentifierList()) {
-            wkt = wkt.append(WKT_SEPARATOR).append("\n").append(Utils.makeSpaces(deepLevel)).append(identifier.toWkt(deepLevel));
+            wkt = wkt.append(WKT_SEPARATOR).append(endLine).append(Utils.makeSpaces(tab, deepLevel)).append(identifier.toWkt(endLine, tab, deepLevel));
         }        
 
         if (getRemark() != null) {
-            wkt = wkt.append(WKT_SEPARATOR).append("\n").append(Utils.makeSpaces(deepLevel)).append(getRemark().toWkt(deepLevel));
+            wkt = wkt.append(WKT_SEPARATOR).append(endLine).append(Utils.makeSpaces(tab, deepLevel)).append(getRemark().toWkt(endLine, tab, deepLevel));
         }
         
         return wkt;
     }
 
+    @Override
+    public StringBuffer toWkt() {
+        return toWkt("\n", "   ", 0);
+    }
 
 }

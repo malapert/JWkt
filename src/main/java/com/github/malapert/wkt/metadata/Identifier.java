@@ -1,19 +1,21 @@
 /* 
- * Copyright (C) 2016 Jean-Christophe Malapert
+ * Copyright (C) 2016-2019 Jean-Christophe Malapert
  *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * JWkt is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3.0 of the License, or (at your option) any later version.
  *
- * This program is distributed in the hope that it will be useful,
+ * JWkt is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
+ * MA 02110-1301  USA 
+*/
 package com.github.malapert.wkt.metadata;
 
 import com.github.malapert.wkt.utils.Singleton;
@@ -27,17 +29,28 @@ import java.util.List;
 /**
  * Identifier is an optional attribute which references an external description 
  * of the object and which may be applied to a coordinate reference system, a 
- * coordinate operation or a boundCRS. 
+ * coordinate operation or a bound CRS. 
  * 
- * It may also be utilised for components of these objects although this is not 
- * recommended except for coordinate operation methods 
- * (including map projections) and parameters. Multiple identifiers may be given
- * for any object.
- * 
- * <p>
- * When an identifier is given for a coordinate reference system, coordinate 
- * operation or boundCRS, it applies to the whole object including all of its 
- * components.
+ * It may also be utilised for components of these objects although this is 
+ * recommended only for the following circumstances:
+ * <ul>
+ * <li>coordinate operation methods and parameters;</li>
+ * <li>source and target CRSs when embedded within a coordinate transformation 
+ * or a concatenated coordinate operation;</li>
+ * <li>source CRS when embedded within a point motion operation;</li>
+ * <li>individual coordinate operations embedded within a concatenated 
+ * coordinate operation;</li>
+ * <li>base CRS when embedded within a derived CRS (including projected CRS);</li>
+ * <li>source CRS, target CRS and abridged transformation when embedded within a
+ * bound CRS;</li>
+ * <li>individual members of a datum ensemble.</li>
+ * </ul>
+ * Multiple identifiers may be given for any object. When an identifier is given
+ * for a coordinate reference system, coordinate operation or bound CRS, 
+ * it applies to the whole object including all of its components. Should any 
+ * attributes or values given in the cited identifier be in conflict with 
+ * attributes or values given explicitly in the WKT description, the WKT values 
+ * shall prevail.
  * 
  * <p>
  * <pre>
@@ -51,14 +64,34 @@ import java.util.List;
  *
  * @author Jean-Christophe Malapert
  */
-public class Identifier implements WktDescription {
+public final class Identifier implements WktDescription {
 
+    /**
+     * ID keyword.
+     */
     public final static String IDENTIFIER_KEYWORD = "ID";
-
+    /**
+     * authority name.
+     */
     private String authorityName;
+    /**
+     * authority ID.
+     */
     private String authorityUniqueIdentifier;
+    /**
+     * Version is an optional attribute indicating the version of the repository
+     * or object that is cited.     
+     */
     private String version;
+    /**
+     * Citation is an optional attribute that may be used to give further 
+     * details of the authority.
+     */
     private Citation citation;
+    /**
+     * URI is an optional attribute that may be used to give reference to an 
+     * online resource.
+     */
     private URI uri;
 
     /**
@@ -84,14 +117,14 @@ public class Identifier implements WktDescription {
      * @param identifierWktElts the Identifier WKT element
      */
     private void parse(final WktElt identifierWktElts) {
-        WktEltCollection wktEltCollection = Singleton.getInstance().getCollection();
-        List<WktElt> attributes = wktEltCollection.getAttributesFor(identifierWktElts, IDENTIFIER_KEYWORD);
-        this.setAuthorityName(attributes.get(0).getKeyword());
-        this.setAuthorityUniqueIdentifier(attributes.get(1).getKeyword());
-        this.setVersion((attributes.size() == 3) ? attributes.get(2).getKeyword() : null);
+        final WktEltCollection wktEltCollection = Singleton.getInstance().getCollection();
+        final List<WktElt> attributes = wktEltCollection.getAttributesFor(identifierWktElts, IDENTIFIER_KEYWORD);
+        this.setAuthorityName(Utils.removeQuotes(attributes.get(0).getKeyword()));
+        this.setAuthorityUniqueIdentifier(Utils.removeQuotes(attributes.get(1).getKeyword()));
+        this.setVersion((attributes.size() == 3) ? Utils.removeQuotes(attributes.get(2).getKeyword()) : null);
 
-        List<WktElt> nodes = wktEltCollection.getNodesFor(identifierWktElts, IDENTIFIER_KEYWORD);
-        for (WktElt node : nodes) {
+        final List<WktElt> nodes = wktEltCollection.getNodesFor(identifierWktElts, IDENTIFIER_KEYWORD);
+        for (final WktElt node : nodes) {
             switch (node.getKeyword()) {
                 case AUTHORITY_CITATION_KEYWORD:
                     this.setCitation(new Citation(node));
@@ -106,24 +139,29 @@ public class Identifier implements WktDescription {
     }
 
     @Override
-    public StringBuffer toWkt(int deepLevel) {
+    public StringBuffer toWkt(final String endLine, final String tab, int deepLevel) {
         StringBuffer wkt = new StringBuffer();
         wkt = wkt.append(IDENTIFIER_KEYWORD).append(LEFT_DELIMITER);
-        wkt = wkt.append("\n").append(Utils.makeSpaces(deepLevel+1)).append(getAuthorityName());
-        wkt = wkt.append(WKT_SEPARATOR).append("\n").append(Utils.makeSpaces(deepLevel+1)).append(getAuthorityUniqueIdentifier());
+        wkt = wkt.append(endLine).append(Utils.makeSpaces(tab, deepLevel+1)).append(Utils.addQuotes(getAuthorityName()));
+        wkt = wkt.append(WKT_SEPARATOR).append(endLine).append(Utils.makeSpaces(tab, deepLevel+1)).append(Utils.addQuotes(getAuthorityUniqueIdentifier()));
         if (getVersion() != null) {
-            wkt = wkt.append(WKT_SEPARATOR).append("\n").append(Utils.makeSpaces(deepLevel+1)).append(getVersion());
+            wkt = wkt.append(WKT_SEPARATOR).append(endLine).append(Utils.makeSpaces(tab, deepLevel+1)).append(Utils.addQuotes(getVersion()));
         }
         if (getCitation() != null) {
-            wkt = wkt.append(WKT_SEPARATOR).append("\n").append(Utils.makeSpaces(deepLevel+1)).append(getCitation().toWkt());
+            wkt = wkt.append(WKT_SEPARATOR).append(endLine).append(Utils.makeSpaces(tab, deepLevel+1)).append(getCitation().toWkt(endLine, tab, deepLevel+1));
         }
         if (getUri() != null) {
-            wkt = wkt.append(WKT_SEPARATOR).append("\n").append(Utils.makeSpaces(deepLevel+1)).append(getUri().toWkt());
+            wkt = wkt.append(WKT_SEPARATOR).append(endLine).append(Utils.makeSpaces(tab, deepLevel+1)).append(getUri().toWkt(endLine, tab, deepLevel+1));
         }
-        wkt = wkt.append("\n").append(Utils.makeSpaces(deepLevel)).append(RIGHT_DELIMITER);
+        wkt = wkt.append(endLine).append(Utils.makeSpaces(tab, deepLevel)).append(RIGHT_DELIMITER);
         return wkt;
     }
-
+    
+    @Override
+    public StringBuffer toWkt() {
+        return toWkt("\n", "   ", 0);
+    } 
+    
     /**
      * Returns the authority name.
      * @return the authorityName
@@ -204,53 +242,100 @@ public class Identifier implements WktDescription {
         this.uri = uri;
     }
 
-    public static class Citation {
+    /**
+     * Citation is an optional attribute that may be used to give further 
+     * details of the authority.
+     */
+    public static class Citation implements WktDescription{
 
+        /**
+         * CITATION keyword.
+         */
         public final static String AUTHORITY_CITATION_KEYWORD = "CITATION";
-        
+        /**
+         * description.
+         */
         private String description;
 
+        /**
+         * Constructs a citation based on its description.
+         * @param description description
+         */
         public Citation(final String description) {
             this.description = description;
         }
         
+        /**
+         * Constructs a citation by parsing the WKT string.
+         * @param citationWkt WKT string
+         */
         public Citation(final WktElt citationWkt) {
-            WktEltCollection wktEltCollection = Singleton.getInstance().getCollection();
-            List<WktElt> attributes = wktEltCollection.getAttributesFor(citationWkt, AUTHORITY_CITATION_KEYWORD);
+            final WktEltCollection wktEltCollection = Singleton.getInstance().getCollection();
+            final List<WktElt> attributes = wktEltCollection.getAttributesFor(citationWkt, AUTHORITY_CITATION_KEYWORD);
             this.description = attributes.get(0).getKeyword();
         }
 
-        public StringBuffer toWkt() {
+        @Override
+        public StringBuffer toWkt(final String endLine, final String tab, int deepLevel) {
             StringBuffer wkt = new StringBuffer();
             wkt = wkt.append(AUTHORITY_CITATION_KEYWORD).append(LEFT_DELIMITER);
-            wkt = wkt.append(this.description);
+            wkt = wkt.append(Utils.addQuotes(this.description));
             wkt = wkt.append(RIGHT_DELIMITER);
             return wkt;
         }
+        
+        @Override
+        public StringBuffer toWkt() {
+            return toWkt("\n", "   ", 0);
+        }         
     }
 
-    public static class URI {
+    /**
+     * URI is an optional attribute that may be used to give reference to an 
+     * online resource.
+     */
+    public static class URI implements WktDescription{
         
+        /**
+         * URI keyword.
+         */
         public final static String URI_KEYWORD = "URI";       
 
-        private String description;
+        /**
+         * description.
+         */
+        private final String description;
         
+        /**
+         * Constructs an URI based on its description.
+         * @param description description
+         */
         public URI(final String description) {
             this.description = description;
         }
 
+        /**
+         * Constructs the URI by parsing the WKT string.
+         * @param uriWkt WKT string
+         */
         public URI(final WktElt uriWkt) {
-            WktEltCollection wktEltCollection = Singleton.getInstance().getCollection();
-            List<WktElt> attributes = wktEltCollection.getAttributesFor(uriWkt, URI_KEYWORD);
+            final WktEltCollection wktEltCollection = Singleton.getInstance().getCollection();
+            final List<WktElt> attributes = wktEltCollection.getAttributesFor(uriWkt, URI_KEYWORD);
             this.description = attributes.get(0).getKeyword();            
         }
 
-        public StringBuffer toWkt() {
-            StringBuffer wkt = new StringBuffer();
+        @Override
+        public StringBuffer toWkt(final String endLine, final String tab, int deepLevel) {
+            StringBuffer wkt = new StringBuffer(); 
             wkt = wkt.append(URI_KEYWORD).append(LEFT_DELIMITER);
-            wkt = wkt.append(this.description);
+            wkt = wkt.append(Utils.addQuotes(this.description));
             wkt = wkt.append(RIGHT_DELIMITER);
             return wkt;
         }
+        
+        @Override
+        public StringBuffer toWkt() {
+            return toWkt("\n", "   ", 0);
+        }        
     }
 }

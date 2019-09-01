@@ -48,7 +48,7 @@ public class WKTWriter {
         scopeExent.getUsageList().add(new Usage(new Scope("For celestial objects: satellites, planets, stars, galaxies."), areaList));
         CoordinateReferenceSystem crs = CoordinateReferenceSystemFactory.create("myCrs", datum, cs);
         //GeodeticCrs crs = new GeodeticCrs(GeodeticCrs.GeodeticCrsKeyword.GEODCRS, "MyCRS", datum, cs);
-        System.out.println(crs.toWkt(0));
+        System.out.println(crs);
         DerivedGeodeticCrs crs2 = CoordinateReferenceSystemFactory.create(DerivedGeodeticCrs.class);
     }
     

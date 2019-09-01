@@ -1,19 +1,21 @@
 /* 
- * Copyright (C) 2016 Jean-Christophe Malapert
+ * Copyright (C) 2016-2019 Jean-Christophe Malapert
  *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * JWkt is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3.0 of the License, or (at your option) any later version.
  *
- * This program is distributed in the hope that it will be useful,
+ * JWkt is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
+ * MA 02110-1301  USA 
+*/
 package com.github.malapert.wkt.cs;
 
 import com.github.malapert.wkt.utils.Singleton;
@@ -88,12 +90,12 @@ public class Ellipsoid implements WktDescription {
      * @param ellipsoidElts ELLIPSOID WKT element
      */
     private void parse(final WktElt ellipsoidElts) {
-        WktEltCollection wktEltCollection = Singleton.getInstance().getCollection();
+        final WktEltCollection wktEltCollection = Singleton.getInstance().getCollection();
 
         this.ellipsoid = EllipsoidKeyword.valueOf(ellipsoidElts.getKeyword());
 
-        List<WktElt> attributes = wktEltCollection.getAttributesFor(ellipsoidElts, this.ellipsoid.name());
-        this.setEllipsoidName(attributes.get(0).getKeyword());
+        final List<WktElt> attributes = wktEltCollection.getAttributesFor(ellipsoidElts, this.ellipsoid.name());
+        this.setEllipsoidName(Utils.removeQuotes(attributes.get(0).getKeyword()));
         this.setSemiMajorAxis(Float.parseFloat(attributes.get(1).getKeyword()));
         this.setInverFlattening(Float.parseFloat(attributes.get(2).getKeyword()));
 
@@ -211,21 +213,24 @@ public class Ellipsoid implements WktDescription {
     }
 
     @Override
-    public StringBuffer toWkt(int deepLevel) {
+    public StringBuffer toWkt(final String endLine, final String tab, int deepLevel) {
         StringBuffer wkt = new StringBuffer();
         wkt = wkt.append(getEllipsoid()).append(LEFT_DELIMITER);
-        wkt = wkt.append("\n").append(Utils.makeSpaces(deepLevel+1)).append(getEllipsoidName());
-        wkt = wkt.append(WKT_SEPARATOR).append("\n").append(Utils.makeSpaces(deepLevel+1)).append(getSemiMajorAxis());
-        wkt = wkt.append(WKT_SEPARATOR).append("\n").append(Utils.makeSpaces(deepLevel+1)).append(getInverFlattening());
+        wkt = wkt.append(endLine).append(Utils.makeSpaces(tab, deepLevel+1)).append(Utils.addQuotes(getEllipsoidName()));
+        wkt = wkt.append(WKT_SEPARATOR).append(endLine).append(Utils.makeSpaces(tab, deepLevel+1)).append(getSemiMajorAxis());
+        wkt = wkt.append(WKT_SEPARATOR).append(endLine).append(Utils.makeSpaces(tab, deepLevel+1)).append(getInverFlattening());
         if (this.getLengthUnit() != null) {
-            wkt = wkt.append(WKT_SEPARATOR).append("\n").append(Utils.makeSpaces(deepLevel+1)).append(getLengthUnit().toWkt(deepLevel+1));
+            wkt = wkt.append(WKT_SEPARATOR).append(endLine).append(Utils.makeSpaces(tab, deepLevel+1)).append(getLengthUnit().toWkt(endLine, tab, deepLevel+1));
         }
-        if (!this.getIdentifierList().isEmpty()) {
-            for (Identifier id : getIdentifierList()) {
-                wkt = wkt.append(WKT_SEPARATOR).append("\n").append(Utils.makeSpaces(deepLevel+1)).append(id.toWkt(deepLevel+1));
-            }
+        for (Identifier id : getIdentifierList()) {
+            wkt = wkt.append(WKT_SEPARATOR).append(endLine).append(Utils.makeSpaces(tab, deepLevel+1)).append(id.toWkt(endLine, tab, deepLevel+1));
         }
-        wkt = wkt.append("\n").append(Utils.makeSpaces(deepLevel)).append(RIGHT_DELIMITER);
+        wkt = wkt.append(endLine).append(Utils.makeSpaces(tab, deepLevel)).append(RIGHT_DELIMITER);
         return wkt;
     }
+    
+    @Override
+    public StringBuffer toWkt() {
+        return toWkt("\n", "   ", 0);
+    }    
 }

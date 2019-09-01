@@ -1,19 +1,21 @@
 /* 
- * Copyright (C) 2016 Jean-Christophe Malapert
+ * Copyright (C) 2016-2019 Jean-Christophe Malapert
  *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * JWkt is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3.0 of the License, or (at your option) any later version.
  *
- * This program is distributed in the hope that it will be useful,
+ * JWkt is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
+ * MA 02110-1301  USA 
+*/
 package com.github.malapert.wkt.datum;
 
 import com.github.malapert.wkt.utils.Singleton;
@@ -40,7 +42,7 @@ import java.util.List;
  *
  * @author Jean-Christophe Malapert
  */
-public class GeodeticDatum extends AbstractDatum {
+public final class GeodeticDatum extends AbstractDatum {
     
     public enum GeodeticDatumKeyword {
         DATUM,
@@ -86,9 +88,9 @@ public class GeodeticDatum extends AbstractDatum {
     @Override
     protected void parse(final WktElt geodeticDatum) {
         setKeyword(geodeticDatum.getKeyword());
-        WktEltCollection wktEltCollection = Singleton.getInstance().getCollection();
-        List<WktElt> attributes = wktEltCollection.getAttributesFor(geodeticDatum, geodeticDatum.getKeyword());
-        this.setDatumName(attributes.get(0).getKeyword());                        
+        final WktEltCollection wktEltCollection = Singleton.getInstance().getCollection();
+        final List<WktElt> attributes = wktEltCollection.getAttributesFor(geodeticDatum, geodeticDatum.getKeyword());
+        this.setDatumName(Utils.removeQuotes(attributes.get(0).getKeyword()));                        
         List<WktElt> nodes = wktEltCollection.getNodesFor(geodeticDatum, geodeticDatum.getKeyword());
         for (WktElt node : nodes) {
             switch (node.getKeyword()) {
@@ -142,22 +144,22 @@ public class GeodeticDatum extends AbstractDatum {
       
 
     @Override
-    public StringBuffer toWkt(int deepLevel) {
+    public StringBuffer toWkt(final String endLine, final String tab, int deepLevel) {
         StringBuffer wkt = new StringBuffer();
         wkt = wkt.append(this.getKeyword()).append(LEFT_DELIMITER);
-        wkt = wkt.append("\n").append(Utils.makeSpaces(deepLevel+1)).append(getDatumName());
-        wkt = wkt.append(WKT_SEPARATOR).append("\n").append(Utils.makeSpaces(deepLevel+1)).append(getEllipsoid().toWkt(deepLevel+1));
+        wkt = wkt.append(endLine).append(Utils.makeSpaces(tab, deepLevel+1)).append(getDatumName());
+        wkt = wkt.append(WKT_SEPARATOR).append(endLine).append(Utils.makeSpaces(tab, deepLevel+1)).append(getEllipsoid().toWkt(endLine, tab, deepLevel+1));
         if (getAnchor() != null) {
-            wkt = wkt.append(WKT_SEPARATOR).append("\n").append(Utils.makeSpaces(deepLevel+1)).append(getAnchor().toWkt(deepLevel+1));
+            wkt = wkt.append(WKT_SEPARATOR).append(endLine).append(Utils.makeSpaces(tab, deepLevel+1)).append(getAnchor().toWkt(endLine, tab, deepLevel+1));
         }
         if (!getIdentifierList().isEmpty()) {
             for (Identifier id : getIdentifierList()) {
-                wkt = wkt.append(WKT_SEPARATOR).append("\n").append(Utils.makeSpaces(deepLevel+1)).append(id.toWkt(deepLevel+1));
+                wkt = wkt.append(WKT_SEPARATOR).append(endLine).append(Utils.makeSpaces(tab, deepLevel+1)).append(id.toWkt(endLine, tab, deepLevel+1));
             }
         }
-        wkt = wkt.append("\n").append(Utils.makeSpaces(deepLevel)).append(RIGHT_DELIMITER);
+        wkt = wkt.append(endLine).append(Utils.makeSpaces(tab, deepLevel)).append(RIGHT_DELIMITER);
         if (getPrimeMeridian() != null) {
-            wkt = wkt.append(WKT_SEPARATOR).append("\n").append(Utils.makeSpaces(deepLevel)).append(getPrimeMeridian().toWkt(deepLevel+1));
+            wkt = wkt.append(WKT_SEPARATOR).append(endLine).append(Utils.makeSpaces(tab, deepLevel)).append(getPrimeMeridian().toWkt(endLine, tab, deepLevel+1));
         }
         return wkt;
     }

@@ -1,19 +1,21 @@
 /* 
- * Copyright (C) 2016 Jean-Christophe Malapert
+ * Copyright (C) 2016-2019 Jean-Christophe Malapert
  *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * JWkt is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3.0 of the License, or (at your option) any later version.
  *
- * This program is distributed in the hope that it will be useful,
+ * JWkt is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
+ * MA 02110-1301  USA 
+*/
 package com.github.malapert.wkt.datum;
 
 import com.github.malapert.wkt.utils.Singleton;
@@ -59,11 +61,11 @@ public final class TemporalDatum extends AbstractDatum {
     @Override
     protected void parse(final WktElt temporalDatumWkt) {
         setKeyword(temporalDatumWkt.getKeyword());
-        WktEltCollection wktEltCollection = Singleton.getInstance().getCollection();        
-        List<WktElt> attributes = wktEltCollection.getAttributesFor(temporalDatumWkt, temporalDatumWkt.getKeyword());
-        this.setDatumName(attributes.get(0).getKeyword());
-        List<WktElt> nodes = wktEltCollection.getNodesFor(temporalDatumWkt, temporalDatumWkt.getKeyword());
-        for (WktElt node : nodes) {
+        final WktEltCollection wktEltCollection = Singleton.getInstance().getCollection();        
+        final List<WktElt> attributes = wktEltCollection.getAttributesFor(temporalDatumWkt, temporalDatumWkt.getKeyword());
+        this.setDatumName(Utils.removeQuotes(attributes.get(0).getKeyword()));
+        final List<WktElt> nodes = wktEltCollection.getNodesFor(temporalDatumWkt, temporalDatumWkt.getKeyword());
+        for (final WktElt node : nodes) {
             switch (node.getKeyword()) {
                 case TemporalOrigin.TEMPORAL_DATUM_KEYWORD:
                     this.setTemporalOrigin(new TemporalOrigin(node));
@@ -92,19 +94,19 @@ public final class TemporalDatum extends AbstractDatum {
     }
 
     @Override
-    public StringBuffer toWkt(int deepLevel) {
+    public StringBuffer toWkt(final String endLine, final String tab, int deepLevel) {
         StringBuffer wkt = new StringBuffer();
         wkt = wkt.append(this.keyword).append(LEFT_DELIMITER);
-        wkt = wkt.append("\n").append(Utils.makeSpaces(deepLevel + 1)).append(this.getDatumName());
-        wkt = wkt.append(WKT_SEPARATOR).append("\n").append(Utils.makeSpaces(deepLevel + 1)).append(this.getTemporalOrigin().toWkt(deepLevel + 1));
+        wkt = wkt.append(endLine).append(Utils.makeSpaces(tab, deepLevel + 1)).append(Utils.addQuotes(this.getDatumName()));
+        wkt = wkt.append(WKT_SEPARATOR).append(endLine).append(Utils.makeSpaces(tab, deepLevel + 1)).append(this.getTemporalOrigin().toWkt(endLine, tab, deepLevel + 1));
         for (Identifier id : this.getIdentifierList()) {
-            wkt = wkt.append(WKT_SEPARATOR).append("\n").append(Utils.makeSpaces(deepLevel + 1)).append(id.toWkt(deepLevel + 1));
+            wkt = wkt.append(WKT_SEPARATOR).append(endLine).append(Utils.makeSpaces(tab, deepLevel + 1)).append(id.toWkt(endLine, tab, deepLevel + 1));
         }
-        wkt = wkt.append("\n").append(Utils.makeSpaces(deepLevel)).append(RIGHT_DELIMITER);
+        wkt = wkt.append(endLine).append(Utils.makeSpaces(tab, deepLevel)).append(RIGHT_DELIMITER);
         return wkt;
     }
-
-    /**
+        
+   /**
      * <temporal origin >::=<temporal origin keyword> <left delimiter>
      * <temporal origin description> <right delimiter>
      *
@@ -126,16 +128,21 @@ public final class TemporalDatum extends AbstractDatum {
         private void parse(final WktElt temporalOriginWkt) {
             WktEltCollection wktEltCollection = Singleton.getInstance().getCollection();
             List<WktElt> attributes = wktEltCollection.getAttributesFor(temporalOriginWkt, temporalOriginWkt.getKeyword());
-            this.description = attributes.get(0).getKeyword();
+            this.description = Utils.removeQuotes(attributes.get(0).getKeyword());
         }
 
         @Override
-        public StringBuffer toWkt(int deepLevel) {
+        public StringBuffer toWkt(final String endLine, final String tab, int deepLevel) {
             StringBuffer wkt = new StringBuffer();
             wkt = wkt.append(TEMPORAL_DATUM_KEYWORD).append(LEFT_DELIMITER);
-            wkt = wkt.append(this.description);
+            wkt = wkt.append(Utils.addQuotes(this.description));
             wkt = wkt.append(RIGHT_DELIMITER);
             return wkt;
+        }        
+
+        @Override
+        public StringBuffer toWkt() {
+            return toWkt("\n", "   ", 0);
         }
     }
 }

@@ -1,19 +1,21 @@
 /* 
- * Copyright (C) 2016 Jean-Christophe Malapert
+ * Copyright (C) 2016-2019 Jean-Christophe Malapert
  *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * JWkt is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3.0 of the License, or (at your option) any later version.
  *
- * This program is distributed in the hope that it will be useful,
+ * JWkt is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
+ * MA 02110-1301  USA 
+*/
 package com.github.malapert.wkt.crs;
 
 import com.github.malapert.wkt.cs.CoordinateSystem;
@@ -24,7 +26,8 @@ import com.github.malapert.wkt.datum.ImageDatum;
 import com.github.malapert.wkt.datum.ParametricDatum;
 import com.github.malapert.wkt.datum.TemporalDatum;
 import com.github.malapert.wkt.datum.VerticalDatum;
-import com.github.malapert.wkt.metadata.Metadata;
+import com.github.malapert.wkt.metadata.Standard;
+import com.github.malapert.wkt.metadata.WktDescription;
 import java.util.Arrays;
 import java.util.List;
 
@@ -32,7 +35,7 @@ import java.util.List;
  *
  * @author malapert
  */
-public interface CoordinateReferenceSystem extends Metadata {
+public interface CoordinateReferenceSystem extends WktDescription, Standard {
     
     public enum CrsType {
         GEODETIC_CRS (GeodeticCrs.GeodeticCrsKeyword.getKeywords(),"The WKT representation of a geodetic coordinate reference system","<geodetic crs keyword> <left delimiter> <crs name> <wkt separator> <geodetic datum> <wkt separator> <coordinate system> <scope extent identifier remark> <right delimiter>", Arrays.asList("DATUM"), false, GeodeticCrs.class.getName(), GeodeticDatum.class.getName()),
@@ -174,5 +177,4 @@ public interface CoordinateReferenceSystem extends Metadata {
     public String getCrsName();
     public Datum getCrsDatum();
     public CoordinateSystem getCs();
-    public StringBuffer toWkt(int deepLevel);
 }

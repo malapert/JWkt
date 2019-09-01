@@ -1,19 +1,21 @@
 /* 
- * Copyright (C) 2016 Jean-Christophe Malapert
+ * Copyright (C) 2016-2019 Jean-Christophe Malapert
  *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * JWkt is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3.0 of the License, or (at your option) any later version.
  *
- * This program is distributed in the hope that it will be useful,
+ * JWkt is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
+ * MA 02110-1301  USA 
+*/
 package com.github.malapert.wkt.crs;
 
 import com.github.malapert.wkt.metadata.ExtentFactory;
@@ -21,10 +23,8 @@ import com.github.malapert.wkt.metadata.Identifier;
 import com.github.malapert.wkt.metadata.Remark;
 import com.github.malapert.wkt.metadata.Scope;
 import com.github.malapert.wkt.metadata.ScopeExtent;
-import com.github.malapert.wkt.metadata.WktDescription;
 import com.github.malapert.wkt.cs.CoordinateSystem;
 import com.github.malapert.wkt.datum.Datum;
-import com.github.malapert.wkt.metadata.Usage;
 import com.github.malapert.wkt.utils.Singleton;
 import com.github.malapert.wkt.utils.Utils;
 import com.github.malapert.wkt.utils.WktElt;
@@ -36,7 +36,7 @@ import java.util.List;
  *
  * @author malapert
  */
-public class CompoundCrs implements CompoundCoordinateReferenceSystem, WktDescription {
+public class CompoundCrs implements CompoundCoordinateReferenceSystem {
     
     public static final String COMPOUND_CRS = "COMPOUNDCRS";
     
@@ -91,41 +91,39 @@ public class CompoundCrs implements CompoundCoordinateReferenceSystem, WktDescri
     public List<CoordinateReferenceSystem> getComponents() {
         return this.components;
     }
+    
+    /**
+     * Returns scope extent
+     * @return scope extent
+     */
+    public ScopeExtent getScopeExtent() {
+        return this.scopeExtent;
+    }   
 
     @Override
-    public List<Usage> getUsageList() {
-        return this.scopeExtent.getUsageList();
-    }
-
-    @Override
-    public List<Identifier> getIdentifierList() {
-        return this.scopeExtent.getIdentifierList();
-    }
-
-    @Override
-    public Remark getRemark() {
-        return this.scopeExtent.getRemark();
-    }    
-
-    @Override
-    public StringBuffer toWkt(int deepLevel) {
+    public StringBuffer toWkt(final String endLine, final String tab, int deepLevel) {
         StringBuffer wkt = new StringBuffer();
         wkt = wkt.append(COMPOUND_CRS).append(LEFT_DELIMITER);
-        wkt = wkt.append("\n").append(Utils.makeSpaces(deepLevel+1)).append(this.crsName);
+        wkt = wkt.append(endLine).append(Utils.makeSpaces(tab, deepLevel+1)).append(this.crsName);
         if(!this.components.isEmpty()) {
             for(CoordinateReferenceSystem crs:this.components) {
-                wkt = wkt.append(WKT_SEPARATOR).append("\n").append(Utils.makeSpaces(deepLevel+1)).append(crs.toWkt(deepLevel+1));
+                wkt = wkt.append(WKT_SEPARATOR).append(endLine).append(Utils.makeSpaces(tab, deepLevel+1)).append(crs.toWkt(endLine, tab, deepLevel+1));
             }
         }
-        wkt = wkt.append(Utils.makeSpaces(deepLevel+1)).append(scopeExtent.toWkt(deepLevel+1));
+        wkt = wkt.append(Utils.makeSpaces(tab, deepLevel+1)).append(scopeExtent.toWkt(endLine, tab, deepLevel+1));
 
-        wkt = wkt.append("\n").append(Utils.makeSpaces(deepLevel)).append(RIGHT_DELIMITER);
+        wkt = wkt.append(endLine).append(Utils.makeSpaces(tab, deepLevel)).append(RIGHT_DELIMITER);
         return wkt;
-    }        
+    }  
+    
+    @Override
+    public StringBuffer toWkt() {
+        return toWkt("\n", "   ", 0);
+    }    
     
     @Override
     public String toString() {
-        return toWkt(0).toString();
+        return toWkt("", "", 0).toString();
     }      
 
     @Override

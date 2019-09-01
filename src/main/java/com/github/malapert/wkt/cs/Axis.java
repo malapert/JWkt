@@ -1,19 +1,21 @@
 /* 
- * Copyright (C) 2016 Jean-Christophe Malapert
+ * Copyright (C) 2016-2019 Jean-Christophe Malapert
  *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * JWkt is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3.0 of the License, or (at your option) any later version.
  *
- * This program is distributed in the hope that it will be useful,
+ * JWkt is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
+ * MA 02110-1301  USA 
+*/
 package com.github.malapert.wkt.cs;
 
 import com.github.malapert.wkt.utils.Singleton;
@@ -70,14 +72,14 @@ public class Axis implements WktDescription {
      * @param axisWktElts the AXIS WKT element
      */
     private void parse(final WktElt axisWktElts) {
-        WktEltCollection wktEltCollection = Singleton.getInstance().getCollection();
-        List<WktElt> attributes = wktEltCollection.getAttributesFor(axisWktElts, AXIS_KEYWORD);
-        this.setNameAbbrev(attributes.get(0).getKeyword());
+        final WktEltCollection wktEltCollection = Singleton.getInstance().getCollection();
+        final List<WktElt> attributes = wktEltCollection.getAttributesFor(axisWktElts, AXIS_KEYWORD);
+        this.setNameAbbrev(Utils.removeQuotes(attributes.get(0).getKeyword()));
         //TODO : check with the enumatated list.
-        this.setDirection(attributes.get(1).getKeyword());
+        this.setDirection(Utils.removeQuotes(attributes.get(1).getKeyword()));
 
-        List<WktElt> nodes = wktEltCollection.getNodesFor(axisWktElts, AXIS_KEYWORD);
-        for (WktElt node : nodes) {
+        final List<WktElt> nodes = wktEltCollection.getNodesFor(axisWktElts, AXIS_KEYWORD);
+        for (final WktElt node : nodes) {
             switch (node.getKeyword()) {
                 case Identifier.IDENTIFIER_KEYWORD:
                     this.getIdentifierList().add(new Identifier(node));
@@ -175,24 +177,26 @@ public class Axis implements WktDescription {
     }
 
     @Override
-    public StringBuffer toWkt(int deepLevel) {
+    public StringBuffer toWkt(final String endLine, final String tab, int deepLevel) {
         StringBuffer wkt = new StringBuffer();
         wkt = wkt.append(AXIS_KEYWORD).append(LEFT_DELIMITER);
-        wkt = wkt.append("\n").append(Utils.makeSpaces(deepLevel+1)).append(getNameAbbrev());
-        wkt = wkt.append(WKT_SEPARATOR).append("\n").append(Utils.makeSpaces(deepLevel+1)).append(getDirection());
+        wkt = wkt.append(endLine).append(Utils.makeSpaces(tab, deepLevel+1)).append(Utils.addQuotes(getNameAbbrev()));
+        wkt = wkt.append(WKT_SEPARATOR).append(endLine).append(Utils.makeSpaces(tab, deepLevel+1)).append(Utils.addQuotes(getDirection()));
         if (getAxisOrder() != null) {
-            wkt = wkt.append(WKT_SEPARATOR).append("\n").append(Utils.makeSpaces(deepLevel+1)).append(getAxisOrder().toWkt(deepLevel+1));
+            wkt = wkt.append(WKT_SEPARATOR).append(endLine).append(Utils.makeSpaces(tab, deepLevel+1)).append(getAxisOrder().toWkt(endLine, tab, deepLevel+1));
         }
         if (getAxisUnit() != null) {
-            wkt = wkt.append(WKT_SEPARATOR).append("\n").append(Utils.makeSpaces(deepLevel+1)).append(getAxisUnit().toWkt(deepLevel+1));
+            wkt = wkt.append(WKT_SEPARATOR).append(endLine).append(Utils.makeSpaces(tab, deepLevel+1)).append(getAxisUnit().toWkt(endLine, tab, deepLevel+1));
         }
-        if (!getIdentifierList().isEmpty()) {
-            for (Identifier id : getIdentifierList()) {
-                wkt = wkt.append(WKT_SEPARATOR).append("\n").append(Utils.makeSpaces(deepLevel+1)).append(id.toWkt(deepLevel+1));
-            }
+        for (Identifier id : getIdentifierList()) {
+            wkt = wkt.append(WKT_SEPARATOR).append(endLine).append(Utils.makeSpaces(tab, deepLevel+1)).append(id.toWkt(endLine, tab, deepLevel+1));
         }
-        wkt = wkt.append("\n").append(Utils.makeSpaces(deepLevel)).append(RIGHT_DELIMITER);
+        wkt = wkt.append(endLine).append(Utils.makeSpaces(tab, deepLevel)).append(RIGHT_DELIMITER);
         return wkt;
     }
 
+    @Override
+    public StringBuffer toWkt() {
+        return toWkt("\n", "   ", 0);
+    }    
 }

@@ -1,22 +1,25 @@
 /* 
- * Copyright (C) 2016 Jean-Christophe Malapert
+ * Copyright (C) 2016-2019 Jean-Christophe Malapert
  *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * JWkt is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3.0 of the License, or (at your option) any later version.
  *
- * This program is distributed in the hope that it will be useful,
+ * JWkt is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
+ * MA 02110-1301  USA 
+*/
 package com.github.malapert.wkt.metadata;
 
 import com.github.malapert.wkt.utils.Singleton;
+import com.github.malapert.wkt.utils.Utils;
 import com.github.malapert.wkt.utils.WktElt;
 import com.github.malapert.wkt.utils.WktEltCollection;
 import java.util.ArrayList;
@@ -64,7 +67,7 @@ public abstract class Unit implements WktDescription {
         WktEltCollection wktEltCollection = Singleton.getInstance().getCollection();
 
         List<WktElt> attributes = wktEltCollection.getAttributesFor(unitWkt, getUnitKeyword());
-        this.setUnitName(attributes.get(0).getKeyword());
+        this.setUnitName(Utils.removeQuotes(attributes.get(0).getKeyword()));
         this.setConversionFactor(Float.parseFloat(attributes.get(1).getKeyword()));
 
         List<WktElt> nodes = wktEltCollection.getNodesFor(unitWkt, getUnitKeyword());
@@ -90,19 +93,22 @@ public abstract class Unit implements WktDescription {
      * @return Returns the conversion into WKT
      */
     @Override
-    public final StringBuffer toWkt(int deepLevel) {
+    public final StringBuffer toWkt(final String endLine, final String tab, int deepLevel) {
         StringBuffer wkt = new StringBuffer();
         wkt = wkt.append(this.getUnitKeyword()).append(LEFT_DELIMITER);
-        wkt = wkt.append(this.getUnitName());
+        wkt = wkt.append(Utils.addQuotes(this.getUnitName()));
         wkt = wkt.append(WKT_SEPARATOR).append(this.getConversionFactor());
-        if (!this.identifierList.isEmpty()) {
-            for (Identifier id : this.getIdentifierList()) {
-                wkt = wkt.append(WKT_SEPARATOR).append(id.toWkt(deepLevel+1));
-            }
-        }
+        for (final Identifier id : this.getIdentifierList()) {
+            wkt = wkt.append(WKT_SEPARATOR).append(id.toWkt(endLine, tab, deepLevel+1));
+        }        
         wkt = wkt.append(RIGHT_DELIMITER);
         return wkt;
     }
+    
+    @Override
+    public StringBuffer toWkt() {
+        return toWkt("\n", "   ", 0);
+    }    
 
     /**
      * Returns the unit name.

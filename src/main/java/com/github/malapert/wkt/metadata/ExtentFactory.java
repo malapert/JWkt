@@ -1,19 +1,21 @@
 /* 
- * Copyright (C) 2016 Jean-Christophe Malapert
+ * Copyright (C) 2016-2019 Jean-Christophe Malapert
  *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * JWkt is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3.0 of the License, or (at your option) any later version.
  *
- * This program is distributed in the hope that it will be useful,
+ * JWkt is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
+ * MA 02110-1301  USA 
+*/
 package com.github.malapert.wkt.metadata;
 
 import com.github.malapert.wkt.utils.Singleton;
@@ -24,18 +26,19 @@ import static com.github.malapert.wkt.metadata.ExtentFactory.GeographicBoundingB
 import static com.github.malapert.wkt.metadata.ExtentFactory.TemporalExtent.TEMPORAL_EXTENT_KEYWORD;
 import static com.github.malapert.wkt.metadata.ExtentFactory.VerticalExtent.VERTICAL_EXTENT_KEYWORD;
 import com.github.malapert.wkt.metadata.UnitFactory.LengthUnit;
+import com.github.malapert.wkt.utils.Utils;
 import java.util.List;
 
 /**
- * {@link com.github.malapert.wkt.metadata.Extent} Factory. 
- * 
+ * {@link com.github.malapert.wkt.metadata.Extent} Factory.
+ *
  * @author Jean-Christophe Malapert
  */
-public abstract class ExtentFactory  {
+public abstract class ExtentFactory {
 
     /**
      * Returns the correct Extent according to the <i>keyword</i>.
-     * 
+     *
      * The different value can be:
      * <ul>
      * <li>AREA_DESCRIPTION_KEYWORD</li>
@@ -43,6 +46,7 @@ public abstract class ExtentFactory  {
      * <li>VERTICAL_EXTENT_KEYWORD</li>
      * <li>TEMPORAL_EXTENT_KEYWORD</li>
      * </ul>
+     *
      * @param extentWkt extent wkt
      * @return the {@link com.github.malapert.wkt.metadata.Extent}
      */
@@ -62,63 +66,71 @@ public abstract class ExtentFactory  {
     }
 
     /**
-     * Area description is an optional attribute which describes a geographic area over which a CRS or coordinate operation is applicable.
+     * Area areaDescription is an optional attribute which describes a geographic
+ area over which a CRS or coordinate operation is applicable.
      * <pre>
      * {@code
-     * <area description> ::= <area description keyword> <left delimiter> <area text description> <right delimiter>  
-     * }
+     * <area areaDescription> ::= <area areaDescription keyword> <left delimiter> <area text areaDescription> <right delimiter>
+ }
      * </pre>
      */
-    public static final class AreaDescription implements Extent  {
+    public static final class AreaDescription implements Extent {
 
         /**
          * Keyword.
          */
         public final static String AREA_DESCRIPTION_KEYWORD = "AREA";
-        
+
         /**
-         * description.
+         * areaDescription.
          */
-        private String description;
-        
+        private String areaDescription;
+
         public AreaDescription(final String description) {
-            this.description = description;
+            this.areaDescription = description;
         }
+        
 
         /**
          * Constructor.
+         *
          * @param extentWktElts
          */
         public AreaDescription(final WktElt extentWktElts) {
             final WktEltCollection wktEltCollection = Singleton.getInstance().getCollection();
             final List<WktElt> attributes = wktEltCollection.getAttributesFor(extentWktElts, AREA_DESCRIPTION_KEYWORD);
-            this.setDescription(attributes.get(0).getKeyword());
+            this.setAreaDescription(Utils.removeQuotes(attributes.get(0).getKeyword()));
         }
 
         @Override
-        public StringBuffer toWkt(int deepLevel) {
+        public StringBuffer toWkt(final String endLine, final String tab, int deepLevel) {
             StringBuffer wkt = new StringBuffer();
             wkt = wkt.append(AREA_DESCRIPTION_KEYWORD).append(LEFT_DELIMITER);
-            wkt = wkt.append(this.getDescription());
+            wkt = wkt.append(Utils.addQuotes(this.getDescription()));
             wkt = wkt.append(RIGHT_DELIMITER);
             return wkt;
         }
 
-        /**
-         * Return the area text description.
-         * @return the area text description
-         */
         @Override
-        public String getDescription() {
-            return description;
+        public StringBuffer toWkt() {
+            return toWkt("\n", "   ", 0);
         }
 
         /**
-         * Sets the area text description.
-         * @param description the area text description to set
+         * Return the area description.
+         * @return the area description
          */
-        public void setDescription(final String description) {
-            this.description = description;
+        public String getDescription() {
+            return this.areaDescription;
+        }
+
+        /**
+         * Sets the area text areaDescription.
+         *
+         * @param description the area text areaDescription to set
+         */
+        public void setAreaDescription(final String description) {
+            this.areaDescription = description;
         }
 
         @Override
@@ -135,29 +147,33 @@ public abstract class ExtentFactory  {
         public VerticalExtent getVerticalElement() {
             return null;
         }
+        
+        @Override
+        public AreaDescription getAreaDescription() {
+            return this;
+        }
 
     }
 
     /**
-     * The geographic bounding box is an optional attribute which describes a 
-     * "north up" area. 
-     * 
-     * Upper right latitude will be greater than the lower left latitude. 
-     * Generally the upper right longitude will be greater than the lower left 
-     * longitude. However when the area crosses the 180° meridian, the value of 
-     * the lower left longitude will be greater than the value of the upper 
+     * The geographic bounding box is an optional attribute which describes a
+     * "north up" area.
+     *
+     * Upper right latitude will be greater than the lower left latitude.
+     * Generally the upper right longitude will be greater than the lower left
+     * longitude. However when the area crosses the 180° meridian, the value of
+     * the lower left longitude will be greater than the value of the upper
      * right longitude.
-     * 
+     *
      * <p>
-     * The geographic bounding box is an approximate description of location. 
-     * For most purposes a coordinate precision of two decimal places of a 
-     * degree is sufficient. At this resolution the identification of the 
-     * geodetic CRS to which the bounding box coordinates are referenced is not 
+     * The geographic bounding box is an approximate areaDescription of location.
+     * For most purposes a coordinate precision of two decimal places of a
+     * degree is sufficient. At this resolution the identification of the
+     * geodetic CRS to which the bounding box coordinates are referenced is not
      * required.
      * <p>
-     * <pre>
-     * {@code
-     * <geographic bounding box> ::= <geographic bounding box keyword> <left delimiter> <lower left latitude> <wkt separator> <lower left longitude> <wkt separator> <upper right latitude> <wkt separator> <upper right longitude> <right delimiter>  
+     * <pre> {@code
+     * <geographic bounding box> ::= <geographic bounding box keyword> <left delimiter> <lower left latitude> <wkt separator> <lower left longitude> <wkt separator> <upper right latitude> <wkt separator> <upper right longitude> <right delimiter>
      * }
      * </pre>
      */
@@ -168,8 +184,8 @@ public abstract class ExtentFactory  {
         private float lowerLeftLongitude;
         private float upperRightLatitude;
         private float upperRightLongitude;
-        
-        public GeographicBoundingBox(float lowerLeftLatitude, 
+
+        public GeographicBoundingBox(float lowerLeftLatitude,
                 float lowerLeftLongitude,
                 float upperRightLatitude,
                 float upperRightLongitude) {
@@ -181,19 +197,20 @@ public abstract class ExtentFactory  {
 
         /**
          * Empty constructor.
+         *
          * @param extentWkt
          */
         public GeographicBoundingBox(final WktElt extentWkt) {
-            WktEltCollection wktEltCollection = Singleton.getInstance().getCollection();
-            List<WktElt> attributes = wktEltCollection.getAttributesFor(extentWkt, GEOGRAPHIC_BOUDING_BOX_KEYWORD);
+            final WktEltCollection wktEltCollection = Singleton.getInstance().getCollection();
+            final List<WktElt> attributes = wktEltCollection.getAttributesFor(extentWkt, GEOGRAPHIC_BOUDING_BOX_KEYWORD);
             this.setLowerLeftLatitude(Float.parseFloat(attributes.get(0).getKeyword()));
             this.setLowerLeftLongitude(Float.parseFloat(attributes.get(1).getKeyword()));
             this.setUpperRightLatitude(Float.parseFloat(attributes.get(2).getKeyword()));
-            this.setUpperRightLongitude(Float.parseFloat(attributes.get(3).getKeyword()));  
+            this.setUpperRightLongitude(Float.parseFloat(attributes.get(3).getKeyword()));
         }
 
         @Override
-        public StringBuffer toWkt(int deepLevel) {
+        public StringBuffer toWkt(final String endLine, final String tab, int deepLevel) {
             StringBuffer wkt = new StringBuffer();
             wkt = wkt.append(GEOGRAPHIC_BOUDING_BOX_KEYWORD).append(LEFT_DELIMITER);
             wkt = wkt.append(this.getLowerLeftLatitude());
@@ -204,8 +221,14 @@ public abstract class ExtentFactory  {
             return wkt;
         }
 
+        @Override
+        public StringBuffer toWkt() {
+            return toWkt("\n", "   ", 0);
+        }
+
         /**
          * Returns the lower left latitude.
+         *
          * @return the lowerLeftLatitude
          */
         public float getLowerLeftLatitude() {
@@ -214,6 +237,7 @@ public abstract class ExtentFactory  {
 
         /**
          * Sets the lower left latitude.
+         *
          * @param lowerLeftLatitude the lowerLeftLatitude to set
          */
         public final void setLowerLeftLatitude(float lowerLeftLatitude) {
@@ -222,6 +246,7 @@ public abstract class ExtentFactory  {
 
         /**
          * Returns the lower left longitude.
+         *
          * @return the lowerLeftLongitude
          */
         public float getLowerLeftLongitude() {
@@ -230,6 +255,7 @@ public abstract class ExtentFactory  {
 
         /**
          * Sets the lower left longitude.
+         *
          * @param lowerLeftLongitude the lowerLeftLongitude to set
          */
         public final void setLowerLeftLongitude(float lowerLeftLongitude) {
@@ -238,6 +264,7 @@ public abstract class ExtentFactory  {
 
         /**
          * Returns the upper right latitude.
+         *
          * @return the upperRightLatitude
          */
         public float getUpperRightLatitude() {
@@ -246,6 +273,7 @@ public abstract class ExtentFactory  {
 
         /**
          * Sets the upper right latitude.
+         *
          * @param upperRightLatitude the upperRightLatitude to set
          */
         public final void setUpperRightLatitude(float upperRightLatitude) {
@@ -254,6 +282,7 @@ public abstract class ExtentFactory  {
 
         /**
          * Returns the upper right longitude.
+         *
          * @return the upperRightLongitude
          */
         public float getUpperRightLongitude() {
@@ -262,15 +291,11 @@ public abstract class ExtentFactory  {
 
         /**
          * Sets the upper right longitude.
+         *
          * @param upperRightLongitude the upperRightLongitude to set
          */
         public final void setUpperRightLongitude(float upperRightLongitude) {
             this.upperRightLongitude = upperRightLongitude;
-        }        
-
-        @Override
-        public String getDescription() {
-            return null;
         }
 
         @Override
@@ -287,15 +312,20 @@ public abstract class ExtentFactory  {
         public VerticalExtent getVerticalElement() {
             return null;
         }
+
+        @Override
+        public AreaDescription getAreaDescription() {
+            return null;
+        }
     }
 
     /**
-     * Temporal extent is an optional attribute which describes a date or time 
-     * range over which a CRS or coordinate operation is applicable. 
-     * 
-     * The format for date and time values is defined in ISO 9075-2. Start time 
+     * Temporal extent is an optional attribute which describes a date or time
+     * range over which a CRS or coordinate operation is applicable.
+     *
+     * The format for date and time values is defined in ISO 9075-2. Start time
      * is earlier than end time.
-     * 
+     *
      * <p>
      * {@code
      * <temporal extent> ::= <temporal extent keyword> <left delimiter> <temporal extent start> <wkt separator> <temporal extent end> <right delimiter>
@@ -306,7 +336,7 @@ public abstract class ExtentFactory  {
         public final static String TEMPORAL_EXTENT_KEYWORD = "TIMEEXTENT";
         private String start;
         private String stop;
-        
+
         public TemporalExtent(final String start, final String stop) {
             setStart(start);
             setStop(stop);
@@ -314,26 +344,33 @@ public abstract class ExtentFactory  {
 
         /**
          * Empty constructor.
+         *
          * @param extentWktElts
          */
         public TemporalExtent(final WktElt extentWktElts) {
-            WktEltCollection wktEltCollection = Singleton.getInstance().getCollection();
-            List<WktElt> attributes = wktEltCollection.getAttributesFor(extentWktElts, GEOGRAPHIC_BOUDING_BOX_KEYWORD);
+            final WktEltCollection wktEltCollection = Singleton.getInstance().getCollection();
+            final List<WktElt> attributes = wktEltCollection.getAttributesFor(extentWktElts, GEOGRAPHIC_BOUDING_BOX_KEYWORD);
             this.setStart(attributes.get(0).getKeyword());
-            this.setStop(attributes.get(1).getKeyword());             
+            this.setStop(attributes.get(1).getKeyword());
         }
 
         @Override
-        public StringBuffer toWkt(int deepLevel) {
+        public StringBuffer toWkt(final String endLine, final String tab, int deepLevel) {
             StringBuffer wkt = new StringBuffer();
             wkt = wkt.append(TEMPORAL_EXTENT_KEYWORD).append(LEFT_DELIMITER);
-            wkt = wkt.append(this.getStart()).append(WKT_SEPARATOR).append(this.getStop());            
+            wkt = wkt.append(this.getStart()).append(WKT_SEPARATOR).append(this.getStop());
             wkt = wkt.append(RIGHT_DELIMITER);
             return wkt;
         }
 
+        @Override
+        public StringBuffer toWkt() {
+            return toWkt("\n", "   ", 0);
+        }
+
         /**
          * Returns the start date.
+         *
          * @return the start
          */
         public String getStart() {
@@ -342,6 +379,7 @@ public abstract class ExtentFactory  {
 
         /**
          * Sets the start date.
+         *
          * @param start the start to set
          */
         public final void setStart(final String start) {
@@ -350,6 +388,7 @@ public abstract class ExtentFactory  {
 
         /**
          * Returns the stop date.
+         *
          * @return the stop
          */
         public String getStop() {
@@ -358,15 +397,11 @@ public abstract class ExtentFactory  {
 
         /**
          * Sets the stop date.
+         *
          * @param stop the stop to set
          */
         public final void setStop(final String stop) {
             this.stop = stop;
-        }                
-
-        @Override
-        public String getDescription() {
-            return null;
         }
 
         @Override
@@ -383,20 +418,25 @@ public abstract class ExtentFactory  {
         public VerticalExtent getVerticalElement() {
             return null;
         }
+
+        @Override
+        public AreaDescription getAreaDescription() {
+            return null;
+        }
     }
 
     /**
-     * Vertical extent is an optional attribute which describes a height range 
-     * over which a CRS or coordinate operation is applicable. 
-     * 
-     * Depths have negative height values. Vertical extent is an approximate 
-     * description of location; heights are relative to an unspecified mean sea 
-     * level.
-     * 
-     * <p>
-     * <pre>
-     * {@code 
-     * <vertical extent> ::= <vertical extent keyword> <left delimiter> <vertical extent minimum height> <wkt separator> <vertical extent maximum height> [ <wkt separator> <length unit> ] <right delimiter>  
+     * Vertical extent is an optional attribute which describes a height range
+     * over which a CRS or coordinate operation is applicable.
+     *
+     * Depths have negative height values. Vertical extent is an approximate
+ areaDescription of location; heights are relative to an unspecified mean sea
+ level.
+
+ <p>
+     * <
+     * pre> null     {@code
+     * <vertical extent> ::= <vertical extent keyword> <left delimiter> <vertical extent minimum height> <wkt separator> <vertical extent maximum height> [ <wkt separator> <length unit> ] <right delimiter>
      * }
      * </pre>
      */
@@ -411,42 +451,49 @@ public abstract class ExtentFactory  {
             setMinimumHeight(minimumHeight);
             setMaximumHeight(maximumHeight);
         }
-        
+
         /**
          * Empty constructor.
+         *
          * @param extentWktElts
          */
         public VerticalExtent(final WktElt extentWktElts) {
-            WktEltCollection wktEltCollection = Singleton.getInstance().getCollection();
-            List<WktElt> attributes = wktEltCollection.getAttributesFor(extentWktElts, GEOGRAPHIC_BOUDING_BOX_KEYWORD);
+            final WktEltCollection wktEltCollection = Singleton.getInstance().getCollection();
+            final List<WktElt> attributes = wktEltCollection.getAttributesFor(extentWktElts, GEOGRAPHIC_BOUDING_BOX_KEYWORD);
             this.setMinimumHeight(Float.parseFloat(attributes.get(0).getKeyword()));
             this.setMaximumHeight(Float.parseFloat(attributes.get(1).getKeyword()));
-            List<WktElt> nodes = wktEltCollection.getNodesFor(extentWktElts, GEOGRAPHIC_BOUDING_BOX_KEYWORD);
-            for(WktElt node:nodes) {
-                if(UnitFactory.LengthUnit.LENGTH_KEYWORD.equals(node.getKeyword())
-                   || UnitFactory.LengthUnit.LENGTH_UNIT_KEYWORD.equals(node.getKeyword())) {
+            final List<WktElt> nodes = wktEltCollection.getNodesFor(extentWktElts, GEOGRAPHIC_BOUDING_BOX_KEYWORD);
+            for (final WktElt node : nodes) {
+                if (UnitFactory.LengthUnit.LENGTH_KEYWORD.equals(node.getKeyword())
+                        || UnitFactory.LengthUnit.LENGTH_UNIT_KEYWORD.equals(node.getKeyword())) {
                     LengthUnit unit = new UnitFactory.LengthUnit(extentWktElts);
-                    this.setLengthUnit(unit);                    
+                    this.setLengthUnit(unit);
                 } else {
                     throw new RuntimeException();
                 }
-            }  
+            }
         }
 
         @Override
-        public StringBuffer toWkt(int deepLevel) {
+        public StringBuffer toWkt(final String endLine, final String tab, int deepLevel) {
             StringBuffer wkt = new StringBuffer();
             wkt = wkt.append(VERTICAL_EXTENT_KEYWORD).append(LEFT_DELIMITER);
             wkt = wkt.append(getMinimumHeight()).append(WKT_SEPARATOR).append(getMaximumHeight());
-            if(getLengthUnit()!=null) {
-                wkt = wkt.append(WKT_SEPARATOR).append(getLengthUnit().toWkt(deepLevel+1));
+            if (getLengthUnit() != null) {
+                wkt = wkt.append(WKT_SEPARATOR).append(getLengthUnit().toWkt(endLine, tab, deepLevel + 1));
             }
             wkt = wkt.append(RIGHT_DELIMITER);
             return wkt;
         }
 
+        @Override
+        public StringBuffer toWkt() {
+            return toWkt("\n", "   ", 0);
+        }
+
         /**
          * Returns the vertical minimum height.
+         *
          * @return the minimumHeight
          */
         public float getMinimumHeight() {
@@ -455,6 +502,7 @@ public abstract class ExtentFactory  {
 
         /**
          * Sets the vertical minimum height.
+         *
          * @param minimumHeight the minimumHeight to set
          */
         public final void setMinimumHeight(float minimumHeight) {
@@ -463,6 +511,7 @@ public abstract class ExtentFactory  {
 
         /**
          * Returns the vertical maximum height.
+         *
          * @return the maximumHeight
          */
         public float getMaximumHeight() {
@@ -471,6 +520,7 @@ public abstract class ExtentFactory  {
 
         /**
          * Sets the vertical maximum height.
+         *
          * @param maximumHeight the maximumHeight to set
          */
         public final void setMaximumHeight(float maximumHeight) {
@@ -479,6 +529,7 @@ public abstract class ExtentFactory  {
 
         /**
          * Returns the length unit.
+         *
          * @return the lengthUnit
          */
         public Unit getLengthUnit() {
@@ -487,15 +538,11 @@ public abstract class ExtentFactory  {
 
         /**
          * Sets the length unit.
+         *
          * @param lengthUnit the lengthUnit to set
          */
         public final void setLengthUnit(UnitFactory.LengthUnit lengthUnit) {
             this.lengthUnit = lengthUnit;
-        }        
-
-        @Override
-        public String getDescription() {
-            return null;
         }
 
         @Override
@@ -511,6 +558,11 @@ public abstract class ExtentFactory  {
         @Override
         public VerticalExtent getVerticalElement() {
             return this;
+        }
+
+        @Override
+        public AreaDescription getAreaDescription() {
+            return null;
         }
     }
 }

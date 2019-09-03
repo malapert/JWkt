@@ -86,7 +86,7 @@ public class UsageTest {
     }  
     
     @Test
-    public void testToWkt1() {
+    public void testToWkt1() {              
         ExtentFactory.AreaDescription area = new ExtentFactory.AreaDescription("Netherlands offshore.");
         ExtentFactory.TemporalExtent tmp = new ExtentFactory.TemporalExtent("1976-01", "2001-04");
         List<Extent> extents = Arrays.asList(area, tmp);
@@ -97,10 +97,10 @@ public class UsageTest {
     @Test
     public void testToWkt2() {
         ExtentFactory.AreaDescription area = new ExtentFactory.AreaDescription("Finland - onshore between 26°30’E and 27°30’E.");
-        ExtentFactory.GeographicBoundingBox geo = new ExtentFactory.GeographicBoundingBox(60.36f,26.5f,70.05f,27.5f);
+        ExtentFactory.GeographicBoundingBox geo = new ExtentFactory.GeographicBoundingBox(60.36f,26.5f,70.05f,27.5f, 2);
         List<Extent> extents = Arrays.asList(area, geo);
         Usage usage2 = new Usage(new Scope("Cadastre."),extents);
         System.out.println(usage2.toWkt("","",0).toString());
-        assertEquals("USAGE[SCOPE[\"Cadastre.\"],AREA[\"Finland - onshore between 26°30’E and 27°30’E.\"],BBOX[60.36,26.5,70.05,27.5]]", usage2.toWkt("","",0).toString());
+        assertEquals("USAGE[SCOPE[\"Cadastre.\"],AREA[\"Finland - onshore between 26°30’E and 27°30’E.\"],BBOX[60.36,26.50,70.05,27.50]]", usage2.toWkt("","",0).toString());
     }    
 }

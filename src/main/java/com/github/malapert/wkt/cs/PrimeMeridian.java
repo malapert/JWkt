@@ -27,6 +27,7 @@ import com.github.malapert.wkt.metadata.Unit;
 import com.github.malapert.wkt.metadata.UnitFactory;
 import com.github.malapert.wkt.metadata.UnitFactory.AngleUnit;
 import com.github.malapert.wkt.metadata.Identifier;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -42,7 +43,7 @@ public class PrimeMeridian implements WktDescription {
 
     private PrimeMeridianKeyword primeMeridianKeyword;
     private String meridianName;
-    private float longitude;
+    private BigDecimal longitude;
     private Unit angleUnit;
     private List<Identifier> identifierList = new ArrayList<>();
 
@@ -62,7 +63,7 @@ public class PrimeMeridian implements WktDescription {
                          float longitude) {
         this.primeMeridianKeyword = primeMeridianKeyword;
         this.meridianName = meridianName;
-        this.longitude = longitude;
+        this.longitude = new BigDecimal(longitude);
     }
                          
 
@@ -77,7 +78,7 @@ public class PrimeMeridian implements WktDescription {
 
         final List<WktElt> attributes = wktEltCollection.getAttributesFor(primeMeridianElts, getPrimeMeridianKeyword().name());
         this.setMeridianName(Utils.removeQuotes(attributes.get(0).getKeyword()));
-        this.setLongitude(Float.parseFloat(attributes.get(1).getKeyword()));
+        this.longitude = new BigDecimal(attributes.get(1).getKeyword());
 
         final List<WktElt> nodes = wktEltCollection.getNodesFor(primeMeridianElts, getPrimeMeridianKeyword().name());
         for (final WktElt node : nodes) {
@@ -128,14 +129,14 @@ public class PrimeMeridian implements WktDescription {
      * @return the longitude
      */
     public float getLongitude() {
-        return longitude;
+        return longitude.floatValue();
     }
 
     /**
      * @param longitude the longitude to set
      */
     public void setLongitude(float longitude) {
-        this.longitude = longitude;
+        this.longitude = new BigDecimal(longitude);
     }
 
     /**
@@ -170,10 +171,10 @@ public class PrimeMeridian implements WktDescription {
     public StringBuffer toWkt(final String endLine, final String tab, int deepLevel) {
         StringBuffer wkt = new StringBuffer();
         wkt = wkt.append(getPrimeMeridianKeyword()).append(LEFT_DELIMITER);
-        wkt = wkt.append(endLine).append(Utils.makeSpaces(tab, deepLevel+1)).append(Utils.removeQuotes(getMeridianName()));
-        wkt = wkt.append(WKT_SEPARATOR).append(endLine).append(Utils.makeSpaces(tab, deepLevel+1)).append(getLongitude());
+        wkt = wkt.append(endLine).append(Utils.makeSpaces(tab, deepLevel+1)).append(Utils.addQuotes(getMeridianName()));
+        wkt = wkt.append(WKT_SEPARATOR).append(endLine).append(Utils.makeSpaces(tab, deepLevel+1)).append(this.longitude);
         if (getAngleUnit() != null) {
-            wkt = wkt.append(WKT_SEPARATOR).append(endLine).append(Utils.makeSpaces(tab, deepLevel+1)).append(getAngleUnit());
+            wkt = wkt.append(WKT_SEPARATOR).append(endLine).append(Utils.makeSpaces(tab, deepLevel+1)).append(getAngleUnit().toWkt(endLine, tab, deepLevel+1));
         }
         for (Identifier id : getIdentifierList()) {
             wkt = wkt.append(WKT_SEPARATOR).append(endLine).append(Utils.makeSpaces(tab, deepLevel+1)).append(id.toWkt(endLine, tab, deepLevel+1));

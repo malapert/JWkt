@@ -64,11 +64,9 @@ public abstract class AbstractMethod implements Method {
         StringBuffer wkt = new StringBuffer();
         wkt = wkt.append(DERIVED_CONVERSION_METHOD).append(LEFT_DELIMITER);
         wkt = wkt.append(endLine).append(Utils.makeSpaces(tab, deepLevel + 1)).append(Utils.addQuotes(this.getMethodName()));
-        if (!identifierList.isEmpty()) {
-            for (Identifier id : getIdentifierList()) {
-                wkt = wkt.append(WKT_SEPARATOR).append(endLine).append(Utils.makeSpaces(tab, deepLevel + 1)).append(id.toWkt(endLine, tab, deepLevel + 1));
-            }
-        }
+        for (Identifier id : getIdentifierList()) {
+            wkt = wkt.append(WKT_SEPARATOR).append(endLine).append(Utils.makeSpaces(tab, deepLevel + 1)).append(id.toWkt(endLine, tab, deepLevel + 1));
+        }        
         wkt = wkt.append(endLine).append(Utils.makeSpaces(tab, deepLevel)).append(RIGHT_DELIMITER);
         return wkt;
     }

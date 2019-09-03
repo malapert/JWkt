@@ -143,9 +143,11 @@ public final class Identifier implements WktDescription {
         StringBuffer wkt = new StringBuffer();
         wkt = wkt.append(IDENTIFIER_KEYWORD).append(LEFT_DELIMITER);
         wkt = wkt.append(endLine).append(Utils.makeSpaces(tab, deepLevel+1)).append(Utils.addQuotes(getAuthorityName()));
-        wkt = wkt.append(WKT_SEPARATOR).append(endLine).append(Utils.makeSpaces(tab, deepLevel+1)).append(Utils.addQuotes(getAuthorityUniqueIdentifier()));
+        final String authorityIdStr = Utils.isNumeric(getAuthorityUniqueIdentifier()) ? getAuthorityUniqueIdentifier() : Utils.addQuotes(getAuthorityUniqueIdentifier());
+        wkt = wkt.append(WKT_SEPARATOR).append(endLine).append(Utils.makeSpaces(tab, deepLevel+1)).append(authorityIdStr);
         if (getVersion() != null) {
-            wkt = wkt.append(WKT_SEPARATOR).append(endLine).append(Utils.makeSpaces(tab, deepLevel+1)).append(Utils.addQuotes(getVersion()));
+            final String versionStr = Utils.isNumeric(getVersion()) ? getVersion() : Utils.addQuotes(getVersion());
+            wkt = wkt.append(WKT_SEPARATOR).append(endLine).append(Utils.makeSpaces(tab, deepLevel+1)).append(versionStr);
         }
         if (getCitation() != null) {
             wkt = wkt.append(WKT_SEPARATOR).append(endLine).append(Utils.makeSpaces(tab, deepLevel+1)).append(getCitation().toWkt(endLine, tab, deepLevel+1));
@@ -321,7 +323,7 @@ public final class Identifier implements WktDescription {
         public URI(final WktElt uriWkt) {
             final WktEltCollection wktEltCollection = Singleton.getInstance().getCollection();
             final List<WktElt> attributes = wktEltCollection.getAttributesFor(uriWkt, URI_KEYWORD);
-            this.description = attributes.get(0).getKeyword();            
+            this.description = Utils.removeQuotes(attributes.get(0).getKeyword());            
         }
 
         @Override

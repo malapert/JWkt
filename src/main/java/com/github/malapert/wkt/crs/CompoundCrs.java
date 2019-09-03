@@ -105,11 +105,9 @@ public class CompoundCrs implements CompoundCoordinateReferenceSystem {
         StringBuffer wkt = new StringBuffer();
         wkt = wkt.append(COMPOUND_CRS).append(LEFT_DELIMITER);
         wkt = wkt.append(endLine).append(Utils.makeSpaces(tab, deepLevel+1)).append(this.crsName);
-        if(!this.components.isEmpty()) {
-            for(CoordinateReferenceSystem crs:this.components) {
-                wkt = wkt.append(WKT_SEPARATOR).append(endLine).append(Utils.makeSpaces(tab, deepLevel+1)).append(crs.toWkt(endLine, tab, deepLevel+1));
-            }
-        }
+        for(CoordinateReferenceSystem crs:this.components) {
+            wkt = wkt.append(WKT_SEPARATOR).append(endLine).append(Utils.makeSpaces(tab, deepLevel+1)).append(crs.toWkt(endLine, tab, deepLevel+1));
+        }        
         wkt = wkt.append(Utils.makeSpaces(tab, deepLevel+1)).append(scopeExtent.toWkt(endLine, tab, deepLevel+1));
 
         wkt = wkt.append(endLine).append(Utils.makeSpaces(tab, deepLevel)).append(RIGHT_DELIMITER);

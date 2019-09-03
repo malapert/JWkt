@@ -301,11 +301,9 @@ public class CoordinateSystem implements WktDescription {
             wkt = wkt.append(WKT_SEPARATOR).append(endLine).append(Utils.makeSpaces(tab, deepLevel + 1)).append(id.toWkt(endLine, tab, deepLevel + 1));
         }
         wkt = wkt.append(endLine).append(Utils.makeSpaces(tab, deepLevel)).append(RIGHT_DELIMITER);
-        if (!getAxisList().isEmpty()) {
-            for (Axis axis : getAxisList()) {
-                wkt = wkt.append(WKT_SEPARATOR).append(endLine).append(Utils.makeSpaces(tab, deepLevel)).append(axis.toWkt(endLine, tab, deepLevel));
-            }
-        }
+        for (Axis axis : getAxisList()) {
+            wkt = wkt.append(WKT_SEPARATOR).append(endLine).append(Utils.makeSpaces(tab, deepLevel)).append(axis.toWkt(endLine, tab, deepLevel));
+        }        
         if (getUnit() != null) {
             wkt = wkt.append(WKT_SEPARATOR).append(endLine).append(Utils.makeSpaces(tab, deepLevel)).append(getUnit().toWkt(endLine, tab, deepLevel));
         }

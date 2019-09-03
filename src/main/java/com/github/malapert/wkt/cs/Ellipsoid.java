@@ -25,6 +25,7 @@ import com.github.malapert.wkt.utils.WktElt;
 import com.github.malapert.wkt.utils.WktEltCollection;
 import com.github.malapert.wkt.metadata.Identifier;
 import com.github.malapert.wkt.metadata.UnitFactory.LengthUnit;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -49,8 +50,8 @@ public class Ellipsoid implements WktDescription {
 
     private EllipsoidKeyword ellipsoid;
     private String ellipsoidName;
-    private float semiMajorAxis;
-    private float inverFlattening;
+    private BigDecimal semiMajorAxis;
+    private BigDecimal inverFlattening;
     private LengthUnit lengthUnit;
     private List<Identifier> identifierList = new ArrayList<>();
 
@@ -73,8 +74,8 @@ public class Ellipsoid implements WktDescription {
                      float semiMajorAxis, float inverFlattening) {
         this.ellipsoid = ellipsoid;
         this.ellipsoidName = ellipsoidName;
-        this.semiMajorAxis = semiMajorAxis;
-        this.inverFlattening = inverFlattening;
+        this.semiMajorAxis = new BigDecimal(semiMajorAxis);
+        this.inverFlattening = new BigDecimal(inverFlattening);
     }
 
     /**
@@ -96,8 +97,8 @@ public class Ellipsoid implements WktDescription {
 
         final List<WktElt> attributes = wktEltCollection.getAttributesFor(ellipsoidElts, this.ellipsoid.name());
         this.setEllipsoidName(Utils.removeQuotes(attributes.get(0).getKeyword()));
-        this.setSemiMajorAxis(Float.parseFloat(attributes.get(1).getKeyword()));
-        this.setInverFlattening(Float.parseFloat(attributes.get(2).getKeyword()));
+        this.semiMajorAxis = new BigDecimal(attributes.get(1).getKeyword());
+        this.inverFlattening = new BigDecimal(attributes.get(2).getKeyword());
 
         List<WktElt> nodes = wktEltCollection.getNodesFor(ellipsoidElts, ellipsoid.name());
         for (WktElt node : nodes) {
@@ -153,7 +154,7 @@ public class Ellipsoid implements WktDescription {
      * @return the semiMajorAxis
      */
     public float getSemiMajorAxis() {
-        return semiMajorAxis;
+        return semiMajorAxis.floatValue();
     }
 
     /**
@@ -161,7 +162,7 @@ public class Ellipsoid implements WktDescription {
      * @param semiMajorAxis the semiMajorAxis to set
      */
     public void setSemiMajorAxis(float semiMajorAxis) {
-        this.semiMajorAxis = semiMajorAxis;
+        this.semiMajorAxis = new BigDecimal(semiMajorAxis);
     }
 
     /**
@@ -169,7 +170,7 @@ public class Ellipsoid implements WktDescription {
      * @return the inverFlattening
      */
     public float getInverFlattening() {
-        return inverFlattening;
+        return inverFlattening.floatValue();
     }
 
     /**
@@ -177,7 +178,7 @@ public class Ellipsoid implements WktDescription {
      * @param inverFlattening the inverFlattening to set
      */
     public void setInverFlattening(float inverFlattening) {
-        this.inverFlattening = inverFlattening;
+        this.inverFlattening = new BigDecimal(inverFlattening);
     }
 
     /**
@@ -217,8 +218,8 @@ public class Ellipsoid implements WktDescription {
         StringBuffer wkt = new StringBuffer();
         wkt = wkt.append(getEllipsoid()).append(LEFT_DELIMITER);
         wkt = wkt.append(endLine).append(Utils.makeSpaces(tab, deepLevel+1)).append(Utils.addQuotes(getEllipsoidName()));
-        wkt = wkt.append(WKT_SEPARATOR).append(endLine).append(Utils.makeSpaces(tab, deepLevel+1)).append(getSemiMajorAxis());
-        wkt = wkt.append(WKT_SEPARATOR).append(endLine).append(Utils.makeSpaces(tab, deepLevel+1)).append(getInverFlattening());
+        wkt = wkt.append(WKT_SEPARATOR).append(endLine).append(Utils.makeSpaces(tab, deepLevel+1)).append(this.semiMajorAxis);
+        wkt = wkt.append(WKT_SEPARATOR).append(endLine).append(Utils.makeSpaces(tab, deepLevel+1)).append(this.inverFlattening);
         if (this.getLengthUnit() != null) {
             wkt = wkt.append(WKT_SEPARATOR).append(endLine).append(Utils.makeSpaces(tab, deepLevel+1)).append(getLengthUnit().toWkt(endLine, tab, deepLevel+1));
         }

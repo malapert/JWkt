@@ -53,7 +53,7 @@ public class CoordinateOperationParameterFile extends AbstractOperation {
         final WktEltCollection wktEltCollection = Singleton.getInstance().getCollection();
         final List<WktElt> attributes = wktEltCollection.getAttributesFor(parameterFileWkt, OPERATION_PARAMETER_FILE);
         setParameterName(Utils.removeQuotes(attributes.get(0).getKeyword()));
-        setParameterValueOrFile(attributes.get(1).getKeyword());
+        setParameterValueOrFile(Utils.removeQuotes(attributes.get(1).getKeyword()));
 
         List<WktElt> nodes = wktEltCollection.getNodesFor(parameterFileWkt, OPERATION_PARAMETER_FILE);
         for (WktElt node : nodes) {
@@ -73,7 +73,8 @@ public class CoordinateOperationParameterFile extends AbstractOperation {
         StringBuffer wkt = new StringBuffer();
         wkt = wkt.append(OPERATION_PARAMETER_FILE).append(LEFT_DELIMITER);
         wkt = wkt.append(endLine).append(Utils.makeSpaces(tab, deepLevel + 1)).append(Utils.addQuotes(this.parameterName));
-        wkt = wkt.append(WKT_SEPARATOR).append(endLine).append(Utils.makeSpaces(tab, deepLevel + 1)).append(this.getParameterValueOrFile());
+        final String parameterValueOrFileStr = Utils.isNumeric(getParameterValueOrFile()) ? getParameterValueOrFile() : Utils.addQuotes(getParameterValueOrFile());
+        wkt = wkt.append(WKT_SEPARATOR).append(endLine).append(Utils.makeSpaces(tab, deepLevel + 1)).append(parameterValueOrFileStr);
         for (Identifier id : identifierList) {
             wkt = wkt.append(WKT_SEPARATOR).append(endLine).append(Utils.makeSpaces(tab, deepLevel + 1)).append(id.toWkt(endLine, tab, deepLevel + 1));
         }

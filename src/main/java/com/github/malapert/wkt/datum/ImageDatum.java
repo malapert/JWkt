@@ -107,11 +107,9 @@ public final class ImageDatum extends AbstractDatum {
         if(getAnchor() != null) {
             wkt = wkt.append(WKT_SEPARATOR).append(endLine).append(Utils.makeSpaces(tab, deepLevel+1)).append(getAnchor().toWkt(endLine, tab, deepLevel+1));
         }
-        if(!getIdentifierList().isEmpty()) {
-            for(Identifier id:getIdentifierList()) {
-                wkt = wkt.append(WKT_SEPARATOR).append(endLine).append(Utils.makeSpaces(tab, deepLevel+1)).append(id.toWkt(endLine, tab, deepLevel+1));
-            }
-        }
+        for(Identifier id:getIdentifierList()) {
+            wkt = wkt.append(WKT_SEPARATOR).append(endLine).append(Utils.makeSpaces(tab, deepLevel+1)).append(id.toWkt(endLine, tab, deepLevel+1));
+        }        
         wkt = wkt.append(endLine).append(Utils.makeSpaces(tab, deepLevel)).append(RIGHT_DELIMITER);
         return wkt;
     }

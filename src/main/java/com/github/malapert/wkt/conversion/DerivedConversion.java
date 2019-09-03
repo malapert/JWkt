@@ -82,11 +82,9 @@ public class DerivedConversion extends AbstractConversion {
         wkt = wkt.append(DERIVED_CONVERSION_KEYWORD).append(LEFT_DELIMITER);
         wkt = wkt.append(endLine).append(Utils.makeSpaces(tab, deepLevel + 1)).append(Utils.addQuotes(this.name));
         wkt = wkt.append(WKT_SEPARATOR).append(endLine).append(Utils.makeSpaces(tab, deepLevel + 1)).append(this.getMethod().toWkt(endLine, tab, deepLevel + 1));
-        if (!getParameters().isEmpty()) {
-            for(final Operation parameter:getParameters()) {
-                wkt = wkt.append(WKT_SEPARATOR).append(endLine).append(Utils.makeSpaces(tab, deepLevel + 1)).append(parameter.toWkt(endLine, tab, deepLevel + 1));
-            }
-        }
+        for(final Operation parameter:getParameters()) {
+            wkt = wkt.append(WKT_SEPARATOR).append(endLine).append(Utils.makeSpaces(tab, deepLevel + 1)).append(parameter.toWkt(endLine, tab, deepLevel + 1));
+        }       
         for (final Identifier id : this.getIdentifiers()) {
             wkt = wkt.append(WKT_SEPARATOR).append(endLine).append(Utils.makeSpaces(tab, deepLevel + 1)).append(id.toWkt(endLine, tab, deepLevel + 1));
         }        

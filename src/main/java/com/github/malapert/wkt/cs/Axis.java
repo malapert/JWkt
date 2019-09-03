@@ -181,7 +181,7 @@ public class Axis implements WktDescription {
         StringBuffer wkt = new StringBuffer();
         wkt = wkt.append(AXIS_KEYWORD).append(LEFT_DELIMITER);
         wkt = wkt.append(endLine).append(Utils.makeSpaces(tab, deepLevel+1)).append(Utils.addQuotes(getNameAbbrev()));
-        wkt = wkt.append(WKT_SEPARATOR).append(endLine).append(Utils.makeSpaces(tab, deepLevel+1)).append(Utils.addQuotes(getDirection()));
+        wkt = wkt.append(WKT_SEPARATOR).append(endLine).append(Utils.makeSpaces(tab, deepLevel+1)).append(getDirection());
         if (getAxisOrder() != null) {
             wkt = wkt.append(WKT_SEPARATOR).append(endLine).append(Utils.makeSpaces(tab, deepLevel+1)).append(getAxisOrder().toWkt(endLine, tab, deepLevel+1));
         }

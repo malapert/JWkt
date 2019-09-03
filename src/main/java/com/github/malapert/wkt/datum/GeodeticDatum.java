@@ -147,16 +147,14 @@ public final class GeodeticDatum extends AbstractDatum {
     public StringBuffer toWkt(final String endLine, final String tab, int deepLevel) {
         StringBuffer wkt = new StringBuffer();
         wkt = wkt.append(this.getKeyword()).append(LEFT_DELIMITER);
-        wkt = wkt.append(endLine).append(Utils.makeSpaces(tab, deepLevel+1)).append(getDatumName());
+        wkt = wkt.append(endLine).append(Utils.makeSpaces(tab, deepLevel+1)).append(Utils.addQuotes(getDatumName()));
         wkt = wkt.append(WKT_SEPARATOR).append(endLine).append(Utils.makeSpaces(tab, deepLevel+1)).append(getEllipsoid().toWkt(endLine, tab, deepLevel+1));
         if (getAnchor() != null) {
             wkt = wkt.append(WKT_SEPARATOR).append(endLine).append(Utils.makeSpaces(tab, deepLevel+1)).append(getAnchor().toWkt(endLine, tab, deepLevel+1));
         }
-        if (!getIdentifierList().isEmpty()) {
-            for (Identifier id : getIdentifierList()) {
-                wkt = wkt.append(WKT_SEPARATOR).append(endLine).append(Utils.makeSpaces(tab, deepLevel+1)).append(id.toWkt(endLine, tab, deepLevel+1));
-            }
-        }
+        for (Identifier id : getIdentifierList()) {
+            wkt = wkt.append(WKT_SEPARATOR).append(endLine).append(Utils.makeSpaces(tab, deepLevel+1)).append(id.toWkt(endLine, tab, deepLevel+1));
+        }        
         wkt = wkt.append(endLine).append(Utils.makeSpaces(tab, deepLevel)).append(RIGHT_DELIMITER);
         if (getPrimeMeridian() != null) {
             wkt = wkt.append(WKT_SEPARATOR).append(endLine).append(Utils.makeSpaces(tab, deepLevel)).append(getPrimeMeridian().toWkt(endLine, tab, deepLevel+1));

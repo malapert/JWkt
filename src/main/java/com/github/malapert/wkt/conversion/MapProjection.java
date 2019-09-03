@@ -82,16 +82,12 @@ public class MapProjection extends AbstractConversion {
         wkt = wkt.append(MAP_PROJECTION_KEYWORD).append(LEFT_DELIMITER);
         wkt = wkt.append(endLine).append(Utils.makeSpaces(tab, deepLevel + 1)).append(this.name);
         wkt = wkt.append(WKT_SEPARATOR).append(endLine).append(Utils.makeSpaces(tab, deepLevel + 1)).append(this.method.toWkt(endLine, tab, deepLevel + 1));
-        if (!parameters.isEmpty()) {
-            for (final Operation param : parameters) {
-                wkt = wkt.append(WKT_SEPARATOR).append(endLine).append(Utils.makeSpaces(tab, deepLevel + 1)).append(param.toWkt(endLine, tab, deepLevel + 1));
-            }
+        for (final Operation param : parameters) {
+            wkt = wkt.append(WKT_SEPARATOR).append(endLine).append(Utils.makeSpaces(tab, deepLevel + 1)).append(param.toWkt(endLine, tab, deepLevel + 1));
         }
-        if (!identifiers.isEmpty()) {
-            for (final Identifier id : identifiers) {
-                wkt = wkt.append(WKT_SEPARATOR).append(endLine).append(Utils.makeSpaces(tab, deepLevel + 1)).append(id.toWkt(endLine, tab, deepLevel + 1));
-            }
-        }
+        for (final Identifier id : identifiers) {
+            wkt = wkt.append(WKT_SEPARATOR).append(endLine).append(Utils.makeSpaces(tab, deepLevel + 1)).append(id.toWkt(endLine, tab, deepLevel + 1));
+        }        
         wkt = wkt.append(endLine).append(Utils.makeSpaces(tab, deepLevel)).append(RIGHT_DELIMITER);
         return wkt;
     }

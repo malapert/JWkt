@@ -77,7 +77,7 @@ public class GeodeticCrs extends AbstractCoordinateReferenceSystem {
         } else if(PrimeMeridian.PrimeMeridianKeyword.getKeywords().contains(crsWkt.getKeyword())) {
             ((GeodeticDatum)getCrsDatum()).setPrimeMeridian(new PrimeMeridian(crsWkt));
         } else {
-            throw new RuntimeException();
+            throw new RuntimeException("Unknown element "+crsWkt.getKeyword()+" in GEOGCRS");
         }
     }  
 

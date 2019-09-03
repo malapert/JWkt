@@ -69,23 +69,22 @@ public class DatumFactoryTest {
     
     @Test
     public void testCreateDatumWkt1() {
-        CoordinateReferenceSystemFactory.ParserWkt parser = new CoordinateReferenceSystemFactory.ParserWkt("TRF[\"World Geodetic System 1984\",ELLIPSOID[“WGS 84”,6378388.0,298.257223563,LENGTHUNIT[\"metre\",1.0]]],PRIMEM[\"Greenwich\",0.0]");
+        CoordinateReferenceSystemFactory.ParserWkt parser = new CoordinateReferenceSystemFactory.ParserWkt("TRF[\"World Geodetic System 1984\",ELLIPSOID[\"WGS 84\",6378388.0,298.257223563,LENGTHUNIT[\"metre\",1.0]]]");
         WktEltCollection col = parser.createsWktIndex();
         Singleton.getInstance().setCollection(col);
         Datum datum = DatumFactory.createFromWkt(col.getCollection().get(0));
-        assertEquals("TRF[\"World Geodetic System 1984\",ELLIPSOID[“WGS 84”,6378388.0,298.257223563,LENGTHUNIT[\"metre\",1.0]]],PRIMEM[\"Greenwich\",0.0]", datum.toWkt("", "", 0).toString()); 
+        assertEquals("TRF[\"World Geodetic System 1984\",ELLIPSOID[\"WGS 84\",6378388.0,298.257223563,LENGTHUNIT[\"metre\",1.0]]]", datum.toWkt("", "", 0).toString()); 
     }   
     
     @Test
     public void testCreateDatumWkt2() {
-        CoordinateReferenceSystemFactory.ParserWkt parser = new CoordinateReferenceSystemFactory.ParserWkt("GEODETICDATUM[\"Tananarive 1925\",ELLIPSOID[\"International 1924\",6378388.0,297.0,LENGTHUNIT[\"metre\",1.0]],ANCHOR[\"Tananarive observatory:21.0191667gS, 50.23849537gE of Paris\"]],PRIMEM[\"Paris\",2.5969213,ANGLEUNIT[\"grad\",0.015707963267949]]");
+        CoordinateReferenceSystemFactory.ParserWkt parser = new CoordinateReferenceSystemFactory.ParserWkt("GEODETICDATUM[\"Tananarive 1925\",ELLIPSOID[\"International 1924\",6378388.0,297.0,LENGTHUNIT[\"metre\",1.0]],ANCHOR[\"Tananarive observatory:21.0191667gS, 50.23849537gE of Paris\"]]");
         WktEltCollection col = parser.createsWktIndex();
         Singleton.getInstance().setCollection(col);
         Datum datum = DatumFactory.createFromWkt(col.getCollection().get(0));
         System.out.println(datum.toWkt("", "", 0).toString());
-        assertEquals("GEODETICDATUM[\"Tananarive 1925\",ELLIPSOID[\"International 1924\",6378388.0,297.0,LENGTHUNIT[\"metre\",1.0]],ANCHOR[\"Tananarive observatory:21.0191667gS, 50.23849537gE of Paris\"]],PRIMEM[\"Paris\",2.5969213,ANGLEUNIT[\"grad\",0.015707963267949]]", datum.toWkt("", "", 0).toString()); 
+        assertEquals("GEODETICDATUM[\"Tananarive 1925\",ELLIPSOID[\"International 1924\",6378388.0,297.0,LENGTHUNIT[\"metre\",1.0]],ANCHOR[\"Tananarive observatory:21.0191667gS, 50.23849537gE of Paris\"]]", datum.toWkt("", "", 0).toString()); 
     }    
     
 }
-//TODO 8.4
 //TODO Check 7.6, 7.7

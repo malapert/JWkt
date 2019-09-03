@@ -69,7 +69,7 @@ public abstract class ExtentFactory {
                 extent = new TemporalExtent(extentWkt);
                 break;
             default:
-                throw new RuntimeException();
+                throw new RuntimeException("Unknown element "+extentWkt.getKeyword()+" in EXTENT");
         }
         return extent;
     }

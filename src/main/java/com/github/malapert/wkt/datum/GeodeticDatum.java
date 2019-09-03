@@ -46,12 +46,13 @@ public final class GeodeticDatum extends AbstractDatum {
     
     public enum GeodeticDatumKeyword {
         DATUM,
-        GEODETICDATUM;
+        GEODETICDATUM,
+        TRF;
         private GeodeticDatumKeyword() {        
         }
         
         public static List<String> getKeywords() {
-            return Arrays.asList(GeodeticDatumKeyword.DATUM.name(), GeodeticDatumKeyword.GEODETICDATUM.name());
+            return Arrays.asList(GeodeticDatumKeyword.DATUM.name(), GeodeticDatumKeyword.GEODETICDATUM.name(), GeodeticDatumKeyword.TRF.name());
         }         
     }    
 

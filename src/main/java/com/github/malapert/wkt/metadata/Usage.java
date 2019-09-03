@@ -22,6 +22,7 @@ import com.github.malapert.wkt.utils.Singleton;
 import com.github.malapert.wkt.utils.Utils;
 import com.github.malapert.wkt.utils.WktElt;
 import com.github.malapert.wkt.utils.WktEltCollection;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -59,7 +60,7 @@ public final class Usage implements WktDescription {
      * Extent describes the spatial applicability of a CRS or a coordinate 
      * operation.
      */
-    private List<Extent> extentList;
+    private List<Extent> extentList = new ArrayList<>();
     
     /**
      * Constructs the usage based on the scope and the extent list.
@@ -90,6 +91,7 @@ public final class Usage implements WktDescription {
             switch (node.getKeyword()) {
                 case Scope.SCOPE_KEYWORD:
                     this.setScope(new Scope(node));
+                    break;
                 case ExtentFactory.AreaDescription.AREA_DESCRIPTION_KEYWORD:
                 case ExtentFactory.GeographicBoundingBox.GEOGRAPHIC_BOUDING_BOX_KEYWORD:
                 case ExtentFactory.VerticalExtent.VERTICAL_EXTENT_KEYWORD:
@@ -97,7 +99,7 @@ public final class Usage implements WktDescription {
                     this.getExtentList().add(ExtentFactory.createFromWkt(node));
                     break;
                 default:
-                    throw new RuntimeException();                
+                    throw new RuntimeException("Unknown element "+node.getKeyword()+" in USAGE");                
             }
             
         }

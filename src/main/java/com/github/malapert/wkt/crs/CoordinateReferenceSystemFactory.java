@@ -207,6 +207,9 @@ public abstract class CoordinateReferenceSystemFactory {
                 if (prevChar == ',') {
                     keyword = wkt.substring(j + 1, currentIndex).trim();
                     break;
+                } else if (prevChar == '[') {
+                    keyword = wkt.substring(j + 1, currentIndex).trim();
+                    break;
                 } else if (j == 0) {
                     keyword = wkt.substring(0, currentIndex).trim();
                     break;
